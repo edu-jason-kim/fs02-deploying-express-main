@@ -1,4 +1,4 @@
-name: Docker Build and Deploy to Heroku
+name: Deploy to Heroku
 
 on:
   push:
@@ -9,33 +9,35 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
 
+    # Heroku CLI 설치
+    - name: Install Heroku CLI
+      run: curl https://cli-assets.heroku.com/install.sh | sh
+
     # Heroku 로그인
-    - name: Login to Heroku Container Registry
+    - name: Login to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: heroku container:login
 
-    # Docker 이미지 빌드 및 푸시 (Heroku Container Registry로)
-    - name: Build and push Docker image
+    # Heroku stack 설정
+    - name: Set Heroku Stack
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-      run: |
-        heroku container:push web --app $HEROKU_APP_NAME
+      run: heroku stack:set heroku-24 --app $HEROKU_APP_NAME
 
-    # Heroku 배포
-    - name: Release to Heroku
+    # Git 배포 방식으로 변경
+    - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
-      run: |
-        heroku container:release web --app $HEROKU_APP_NAME
+      run: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git HEAD:main
 
-    # Heroku 환경변수 설정 (필요한 경우)
+    # 환경변수 설정
     - name: Set Heroku Config Vars
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
