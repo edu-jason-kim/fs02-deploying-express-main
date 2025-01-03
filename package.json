@@ -8,7 +8,8 @@
   "main": "src/app.js",
   "scripts": {
     "dev": "nodemon src/app.js",
-    "start": "pm2 start src/app.js -i max"
+    "start": "pm2 start src/app.js -i max",
+    "migrate": "prisma migrate dev"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.717.0",
